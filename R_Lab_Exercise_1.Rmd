@@ -1,7 +1,7 @@
 ---
 title: "DS311 - Basic R Lab Exercise"
 author: "Kelly Dam"
-date: "10/30/2023"
+date: "11/1/2023"
 output:
   pdf_document: default
   html_document: default
