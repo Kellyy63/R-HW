@@ -1,7 +1,7 @@
 ---
 title: "DS311 - R Lab Assignment"
-author: "Your Name"
-date: "`r Sys.Date()`"
+author: "Kelly Dam"
+date: "11/2/2023"
 output: 
   html_document:
     theme: united
@@ -35,10 +35,14 @@ a. Report the number of variables and observations in the data set.
 
 ```{r}
 # Enter your code here!
+# Number of variables
+num_vars <- ncol(mtcars)
 
+# Number of observations
+num_obs <- nrows(mtcars)
 
 # Answer:
-print("There are total of _____ variables and _____ observations in this data set.")
+print("There are total of", num_vars, "variables and", num_obs, "observations in this data set.")
 ```
 
 
@@ -47,10 +51,21 @@ b. Print the summary statistics of the data set and report how many discrete and
 
 ```{r}
 # Enter your code here!
+# Summary statistics
+summary_stats <- summary(mtcars)
 
+# Displaying summary statistics
+print(summary_stats)
+
+# Checking data types
+data_types <- sapply(mtcars, class)
+
+# Counting discrete and continuous variables
+num_discrete <- sum(data_types == "factor" | data_types == "integer")
+num_continuous <- sum(data_types == "numeric")
 
 # Answer:
-print("There are _____ discrete variables and _____ continuous variables in this data set.")
+print("There are "num_discrete," discrete variables and "num_continuous," continuous variables in this data set.")
 ```
 
 
@@ -59,11 +74,14 @@ c. Calculate the mean, variance, and standard deviation for the variable **mpg**
 
 ```{r}
 # Enter your code here!
+# Calculate mean, variance, and standard deviation for mpg
+m <- mean(mtcars$mpg)
 
+v <- var(mtcars$mpg)
 
+s <- sd(mtcars$mpg)
 
-
-# print(paste("The average of Mile Per Gallon from this data set is ",  , " with variance ",  , " and standard deviation",  , "."))
+# print(paste("The average of Mile Per Gallon from this data set is ",m, " with variance ",v, " and standard deviation",s, "."))
 ```
 
 
@@ -72,9 +90,18 @@ d. Create two tables to summarize 1) average mpg for each cylinder class and 2) 
 
 ```{r}
 # Enter your code here!
+# Table 1: Average mpg for each cylinder class
+avg_mpg_by_cyl <- aggregate(mpg ~ cyl, data = mtcars, FUN = mean)
 
+# Table 2: Standard deviation of mpg for each gear class
+sd_mpg_by_gear <- aggregate(mpg ~ gear, data = mtcars, FUN = sd)
 
+# Print the tables
+print("Table 1: Average mpg for each cylinder class")
+print(avg_mpg_by_cyl)
 
+print("Table 2: Standard deviation of mpg for each gear class")
+print(sd_mpg_by_gear)
 
 ```
 
@@ -84,9 +111,20 @@ e. Create a crosstab that shows the number of observations belong to each cylind
 
 ```{r}
 # Enter your code here!
+# Create a crosstab
+crosstab <- table(mtcars$cyl, mtcars$gear)
+
+# Print the crosstab
+print("Crosstab: Number of observations for each cylinder and gear class combination")
+print(crosstab)
+
+# Find the most common car type
+most_common_combination <- which.max(crosstab)
 
 
-print("The most common car type in this data set is car with ____ cylinders and ____ gears. There are total of _____ cars belong to this specification in the data set.")
+
+
+print("The most common car type in this data set is car with," most_common_cyl "cylinders and," most_common_gear, "gears. There are total of," num_observations" cars belong to this specification in the data set.")
 ```
 
 
@@ -106,23 +144,39 @@ data("PlantGrowth")
 head(PlantGrowth)
 
 # Enter your code here!
+# Load library for visualization
+library(ggplot2)
 
-
+# Create a boxplot 
+ggplot(PlantGrowth, aes(x = group, y = weight, fill = group)) + 
+  geom_boxplot() + 
+  labs(title = "Plant Weight in Different Groups",
+       x = "Group",
+       y = "Plant Weight")
 ```
 
 Result:
 
 => Report a paragraph to summarize your findings from the plot!
-
-
+The boxplot reveals clear differences in the distribution of plant weights among the three groups. It
+appears that both Treatment 1 and 2 groups have higher median plant weights compared to the Control group. Additionally, Treatment 2 shows a wider interquartile range, suggesting greater variability in plant weights within that group.
 
 b. Using the **mtcars** data set, plot the histogram for the column **mpg** with 10 breaks. Give labels to the title, x-axis, and y-axis on the graph. Report the most observed mpg class from the data set.
 
 ```{r}
+# Create a histogram
+ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(binwidth = 10, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of MPG in mtcars",
+       x = "Miles Per Gallon (mpg)",
+       y = "Frequency")
+       
+# Find the most observed mpg class
+max_freq_mpg_class <- cut(mtcars$mpg, breaks = seq(min(mtcars$mpg), max(mtcars$mpg) + 10, by 10))
+most_observed_class <- levels(max_freq_mpg_class)[which.max(table(max_freq_mpg_class))]
+most_observed_class
 
-
-
-print("Most of the cars in this data set are in the class of ______ mile per gallon.")
+print("Most of the cars in this data set are in the class of", most_observed_class, "mile per gallon.")
 ```
 
 
@@ -137,14 +191,22 @@ data("USArrests")
 head(USArrests)
 
 # Enter your code here!
-
+# Create a pairs plot
+pairs(USArrests, diag.panel = NULL, upper.panel = NULL, lower.panel = NULL) +
+  geom_point(aes(color = Murder, shape = Assault), alpha = 0.6) +
+  labs(title = "Pairs Plot of USArrests Data",
+       x = "Murder",
+       y = "Assault")
 
 ```
 
 Result:
 
 => Report a paragraph to summarize your findings from the plot!
-
+The pairs plot provides a view of the relationships between different variables in the USArrests dataset.
+Specifically, the scatter plot between Murder and Assault reveals a positive correlation, suggesting 
+that states with higher murder rates also tend to have assault rates. The color and shape makes it easier
+to distinguish between data points. 
 
 
 ***
@@ -172,7 +234,19 @@ a. Create your own descriptive statistics and aggregation tables to summarize th
 head(housingData)
 
 # Enter your code here!
+# Aggregation tables
+# 1. Aggregation by Boro
+aggregate_data_boro <- aggregate(Market.Value.per.SqFt ~ Boro, data = housingData, FUN = mean)
 
+# 2. Aggregation by Year.Built
+aggregate_data_year <- aggregate(Market.Value.per.SqFt ~ Year.Built, data = housingData, FUN = mean)
+
+# Print the aggregation tables
+print("Aggregation by Boro:")
+print(aggregate_data_boro)
+
+print("Aggregation by Year.Built:")
+print(aggregate_data_year)
 
 ```
 
@@ -180,12 +254,36 @@ b. Create multiple plots to demonstrates the correlations between different vari
 
 ```{r}
 # Enter your code here!
-
+# Scatter plot: Market.Value.per.SqFt vs. Year.Built
+scatter_plot_year <- ggplot(housingData, aes(x = Year.Built, y = Market.Value.per.SqFt)) +
+  geom_point() +
+  labs(title = "Scatter Plot: Market Value per SqFt vs. Year Built",
+       x = "Year Built",
+       y = "Market Value per SqFt")
+       
+# Scatter plot: Market.Value.per.SqFt vs. Boro
+scatter_plot_boro <- ggplot(housingData, aes(x = Boro, y = Market.Value.per.SqFt)) +
+  geom_point() +
+  labs(title = "Scatter Plot: Market Value per SqFt vs. Borough",
+       x = "Borough",
+       y = "Market Value per SqFt")
+       
+# Box plot: Market.Value.per.SqFt by Boro
+box_plot_boro <- ggplot(housingData, aes(x = Boro, y = Market.Value.per.SqFt, fill = Boro)) +
+  geom_boxplot() +
+  labs(title = "Box Plot: Market Value per SqFt by Borough",
+       x = "Borough",
+       y = "Market Value per SqFt")
+       
+# Display the plots
+print(scatter_plot_year)
+print(scatter_plot_boro)
+print(box_plot_boro)
 
 ```
 
 c. Write a summary about your findings from this exercise.
 
 => Enter your answer here!
-
+After analyzing the housing dataset and conducting various exploratory data analysis, the summary statistics provide an overview of the central tendency and spread of the market value per square foot which reveals insights into the distribution of housing prices in New York City. The analysis suggests that further investigation into the relationships between variables such as the impact of the year built and borough on housing prices could provide valuable insights into the factors that explain the variations in housing prices in New York City.
 
